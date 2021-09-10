@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tardis3/InfLessons_3_sem/bizzBuzzFile/main.c
+stdio.h
+-
+fcntl.h
+-
+unistd.h
+-
+
