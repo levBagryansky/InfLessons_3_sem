@@ -27,6 +27,8 @@ int main(int argc, char** argv) {
 
     int is_write = write(fd_to, file_arr, file_size);
     printf("is_write is: %i\n", is_write);
-
+    close(fd_from);
+    close(fd_to);
+    free(file_arr);
     return 0;
 }
