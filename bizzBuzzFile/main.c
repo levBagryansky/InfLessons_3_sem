@@ -14,24 +14,35 @@ int get_file_size(int fd){
     return file_size;
 }
 
-char* file2arr(int fd){
+char* file2arr(int fd, int* arrLen){
     int fileLen = get_file_size(fd);
     char* arr = calloc(fileLen, sizeof(char));
     read(fd, arr, fileLen);
+    *arrLen = fileLen;
     return arr;
 }
 
-char* getWord(char* arr, int pozition, int arrSize){
-    if(pozition >= arrSize)
+char* getWord(char* arr, int* ppozition, int arrSize, int* pWordLen){
+    if(*ppozition >= arrSize)
         return 0;
-    int i = pozition;
-    while (i < arrSize && arr[i] != ' ' && i != '\n')
+    if(arr[*ppozition] == ' ' || arr[*ppozition] == '\n'){
+        *pWordLen = 1;
+        char* word = calloc(1, sizeof(char));
+        word[0] = arr[*ppozition];
+        (*ppozition)++;
+        return word;
+    }
+    int i = *ppozition;
+    while (i < arrSize && arr[i] != ' ' && arr[i] != '\n')
         i++;
 
-    char* word = calloc(i - pozition, sizeof(char));
-    for (int j = 0; j < i - pozition; ++j) {
-        word[j] = arr[pozition + j]
+    *pWordLen = i - *ppozition;
+    char* word = calloc(*pWordLen, sizeof(char));
+    for (int j = 0; j < *pWordLen; ++j) {
+        word[j] = arr[*ppozition + j];
     }
+    *ppozition = i;
+    return word;
 }
 
 int main(int argc, char** argv)
@@ -49,6 +60,12 @@ int main(int argc, char** argv)
     }
     FILE* fp_from = fdopen(fd_from, "r");
     //fp = fopen(argv[1], "r");
+    int arrLen = 0;
+    char* arr = file2arr(fd_from, &arrLen);
+    printf("File: %s\n", arr);
+    int pozition = 0;
+    int wordLen = 0;
+    //printf("word: %s\n", getWord(arr, &pozition, arrLen, &wordLen));
 
     return 0;
 }
