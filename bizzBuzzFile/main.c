@@ -113,9 +113,12 @@ int main(int argc, char** argv)
         else {
             int is_write = write(fd_to, word, wordLen);
         }
+        free(word);
             //printf("<%s> is number.\n", word);
         //printf("is_write %i\n", is_write);
     }
-
+    free(arr);
+    close(fd_to);
+    close(fd_from);
     return 0;
 }
