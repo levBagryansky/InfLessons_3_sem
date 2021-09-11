@@ -97,6 +97,7 @@ int main(int argc, char** argv)
         printf("Can not write to file \"%s\"\n", argv[2]);
         exit(-1);
     }
+
     FILE* fp_from = fdopen(fd_from, "r");
     //fp = fopen(argv[1], "r");
     int arrLen = 0;
@@ -105,6 +106,7 @@ int main(int argc, char** argv)
     int pozition = 0;
     int wordLen = 0;
     //printf("word: %s\n", getWord(arr, &pozition, arrLen, &wordLen));
+
     while (pozition < arrLen){
         char *word= getWord(arr, &pozition, arrLen, &wordLen);
         //int is_write = write(fd_to, word, wordLen);
@@ -117,6 +119,7 @@ int main(int argc, char** argv)
             //printf("<%s> is number.\n", word);
         //printf("is_write %i\n", is_write);
     }
+
     free(arr);
     close(fd_to);
     close(fd_from);
