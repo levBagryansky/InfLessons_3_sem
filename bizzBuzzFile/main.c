@@ -47,20 +47,35 @@ char* getWord(char* arr, int* ppozition, int arrSize, int* pWordLen){
     return word;
 }
 
-bool is_number(char* word, int wordLen){
+bool is_integer(char* word, int wordLen){
     if(wordLen == 1){
         if(word[0] >= '0' && word[0] <= '9')
             return true;
         return false;
     }
 
+    int numOfDot = 0;
     if (!(word[0] >= '0' && word[0] <= '9' ||
         word[0] == '-' || word[0] == '+'))
         return false;
 
-    for (int i = 1; i < wordLen; ++i) {
+    int i = 1;
+    for (i; i < wordLen; ++i) {
+        if(word[i] == '.')
+            break;
+
         if(word[i] < '0' || word[i] > '9')
             return false;
+    }
+
+    if (i == wordLen - 1)
+        return false;
+
+    if(i < wordLen){
+        for (int j = i + 1; j < wordLen; ++j) {
+            if(word[j] != '0')
+                return false;
+        }
     }
 
     return true;
@@ -71,17 +86,29 @@ void printBizzBuzz(int fd, char* word, int wordLen){
     int i = 0;
     if(wordLen > 1 && (word[0] == '+' || word[0] == '-'))
         i = 1;
-    for (i; i < wordLen; ++i) {
+
+    int numOfDot = i;
+    while (numOfDot < wordLen){
+        if(word[numOfDot] == '.')
+            break;
+        numOfDot++;
+    }
+
+    for (i; i < numOfDot; ++i) {
         sum += (word[i] - '0');
     }
 
-    int last_digit = word[wordLen - 1] - '0';
+    int last_digit = word[numOfDot - 1] - '0';
     if(sum % 3 == 0){
         write(fd, "bizz", 4);
+        return;
     }
     if(last_digit % 5 == 0){
         write(fd, "buzz", 4);
+        return;
     }
+
+    write(fd, word, wordLen);
 }
 
 int main(int argc, char** argv)
@@ -110,7 +137,7 @@ int main(int argc, char** argv)
     while (pozition < arrLen){
         char *word= getWord(arr, &pozition, arrLen, &wordLen);
         //int is_write = write(fd_to, word, wordLen);
-        if (is_number(word, wordLen))
+        if (is_integer(word, wordLen))
             printBizzBuzz(fd_to, word, wordLen);
         else {
             int is_write = write(fd_to, word, wordLen);
