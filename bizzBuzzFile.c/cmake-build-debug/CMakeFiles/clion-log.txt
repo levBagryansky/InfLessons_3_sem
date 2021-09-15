@@ -1,1 +1,0 @@
-CMakeLists.txt not found in /home/tardis3/InfLessons_3_sem/bizzBuzzFile.c Select CMakeLists.txt

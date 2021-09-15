@@ -9,4 +9,12 @@
 /home/tardis3/InfLessons_3_sem/10_09_21Less/main.c
 stdio.h
 -
+fcntl.h
+-
+sys/stat.h
+-
+stdlib.h
+-
+unistd.h
+-
 
