@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define buf_size 2
+
 int get_file_size(int fd){
     if(fd == -1)
         return -1;
@@ -14,21 +16,32 @@ int get_file_size(int fd){
     return file_size;
 }
 
+int clean_file(char* input){
+
+}
+
 int main(int argc, char** argv) {
+    FILE *fp = fopen(argv[2], "w");
+    fclose(fp);
     int fd_from = open(argv[1], O_RDONLY);
     int fd_to = open(argv[2], O_WRONLY | O_CREAT, 0666);
-    printf("fd_to is: %i\n", fd_to);
+
+    int buf_arr[buf_size] = {0};
 
     int file_size = get_file_size(fd_from);
-    //printf("size is: %i\n", file_size);
 
-    char* file_arr = calloc(file_size, sizeof(char));
-    int is_read = read(fd_from, file_arr, file_size);
+    int is_read = 0;
+    int is_write = 0;
 
-    int is_write = write(fd_to, file_arr, file_size);
-    printf("is_write is: %i\n", is_write);
+    for (int i = 0; i < (file_size / buf_size); ++i){
+        is_read = read(fd_from, buf_arr, buf_size);
+        is_write = write(fd_to, buf_arr, buf_size);
+        printf("is_write is: %i\nis_read is: %i\n", is_write, is_read);
+    }
+    is_read = read(fd_from, buf_arr, file_size % buf_size);
+    is_write = write(fd_to, buf_arr, file_size % buf_size);
+
     close(fd_from);
     close(fd_to);
-    free(file_arr);
     return 0;
 }
