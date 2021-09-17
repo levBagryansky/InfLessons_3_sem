@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define buf_size 2
+#define buf_size 10
 
 int get_file_size(int fd){
     if(fd == -1)
@@ -16,11 +16,11 @@ int get_file_size(int fd){
     return file_size;
 }
 
-int clean_file(char* input){
-
-}
-
 int main(int argc, char** argv) {
+    if(argc != 2){
+        printf("Wrong format\n");
+        exit(1);
+    }
     FILE *fp = fopen(argv[2], "w");
     fclose(fp);
     int fd_from = open(argv[1], O_RDONLY);

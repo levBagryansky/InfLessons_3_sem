@@ -19,6 +19,10 @@ int get_file_size(int fd){
 char* file2arr(int fd, int* arrLen){
     int fileLen = get_file_size(fd);
     char* arr = calloc(fileLen, sizeof(char));
+    if(arr == NULL){
+        printf("File is too big\n");
+        exit(1);
+    }
     read(fd, arr, fileLen);
     *arrLen = fileLen;
     return arr;
@@ -54,13 +58,12 @@ bool is_integer(char* word, int wordLen){
         return false;
     }
 
-    int numOfDot = 0;
-    if (!(word[0] >= '0' && word[0] <= '9' ||
+    if (!((word[0] >= '0' && word[0] <= '9') ||
         word[0] == '-' || word[0] == '+'))
         return false;
 
     int i = 1;
-    for (i; i < wordLen; ++i) {
+    for (; i < wordLen; ++i) {
         if(word[i] == '.')
             break;
 
@@ -94,7 +97,7 @@ void printBizzBuzz(int fd, char* word, int wordLen){
         numOfDot++;
     }
 
-    for (i; i < numOfDot; ++i) {
+    for (; i < numOfDot; ++i) {
         sum += (word[i] - '0');
     }
 
@@ -113,6 +116,11 @@ void printBizzBuzz(int fd, char* word, int wordLen){
 
 int main(int argc, char** argv)
 {
+    if(argc != 3){
+        printf("Wrong format\n");
+        exit(1);
+    }
+
     int fd_from = open(argv[1], O_RDONLY);
     if(fd_from == -1){
         printf("Can not open the file\n");
@@ -125,7 +133,7 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    FILE* fp_from = fdopen(fd_from, "r");
+    //FILE* fp_from = fdopen(fd_from, "r");
     //fp = fopen(argv[1], "r");
     int arrLen = 0;
     char* arr = file2arr(fd_from, &arrLen);
