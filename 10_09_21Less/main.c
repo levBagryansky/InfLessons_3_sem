@@ -17,7 +17,7 @@ int get_file_size(int fd){
 }
 
 int main(int argc, char** argv) {
-    if(argc != 2){
+    if(argc != 3){
         printf("Wrong format\n");
         exit(1);
     }
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < (file_size / buf_size); ++i){
         is_read = read(fd_from, buf_arr, buf_size);
         is_write = write(fd_to, buf_arr, buf_size);
-        printf("is_write is: %i\nis_read is: %i\n", is_write, is_read);
+        //printf("is_write is: %i\nis_read is: %i\n", is_write, is_read);
     }
     is_read = read(fd_from, buf_arr, file_size % buf_size);
     is_write = write(fd_to, buf_arr, file_size % buf_size);
