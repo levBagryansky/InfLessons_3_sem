@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/10_09_21Less.dir/main.c.o -o 10_09_21Less 

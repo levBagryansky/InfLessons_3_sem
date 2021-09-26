@@ -1,3 +1,0 @@
-/home/tardis3/InfLessons_3_sem/Lesson17_09_21/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/tardis3/InfLessons_3_sem/Lesson17_09_21/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/tardis3/InfLessons_3_sem/Lesson17_09_21/cmake-build-debug/CMakeFiles/Lesson17_09_21.dir

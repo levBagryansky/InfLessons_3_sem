@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/lesson03_09_21.dir/main.cpp.o -o lesson03_09_21 

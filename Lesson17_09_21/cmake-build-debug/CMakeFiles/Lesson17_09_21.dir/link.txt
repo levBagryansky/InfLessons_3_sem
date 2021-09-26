@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/Lesson17_09_21.dir/main.c.o -o Lesson17_09_21 

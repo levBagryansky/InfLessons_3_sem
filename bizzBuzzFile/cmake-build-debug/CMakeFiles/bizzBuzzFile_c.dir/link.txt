@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/bizzBuzzFile_c.dir/main.c.o -o bizzBuzzFile_c 
