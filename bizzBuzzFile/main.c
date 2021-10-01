@@ -31,7 +31,7 @@ char* file2arr(int fd, int* arrLen){
 char* getWord(char* arr, int* ppozition, int arrSize, int* pWordLen){
     if(*ppozition >= arrSize)
         return 0;
-    if(arr[*ppozition] == ' ' || arr[*ppozition] == '\n'){
+    if(arr[*ppozition] == ' ' || arr[*ppozition] == '\n' || arr[*ppozition] == '\t'){
         *pWordLen = 1;
         char* word = calloc(1, sizeof(char));
         word[0] = arr[*ppozition];
@@ -149,6 +149,8 @@ int main(int argc, char** argv)
             printBizzBuzz(fd_to, word, wordLen);
         else {
             int is_write = write(fd_to, word, wordLen);
+            if (is_write < 0)
+                printf("There was mistake\n");
         }
         free(word);
             //printf("<%s> is number.\n", word);
