@@ -6,20 +6,19 @@
 #include <ctype.h>
 
 int get_file_size(int fd);
-
 char* file2arr(int fd, int* arrLen);
-
 int numWords(char* arr,int lenArr);
-
+int getWordLen(char* arr, int position, int arrLen);
+char* getWord(char* arr, int position, int arrLen){
+    ;
+}
 char** arr2matrix(char* arr,int lenArr, int* pSize){
-
+    int nWords = numWords(arr, lenArr);
+    char **matrix = (char**) calloc(nWords, sizeof(char*));
     return (char **)arr;
 }
-
-int numOfBar(char *arr, int *plen);
-
+int numOfBar(char *arr, int *plen); //возвращает ближайший |
 int lastBar(char *arr, int len);
-
 void doBar(char *arr, int len){
     if (numOfBar(arr, &len) == 0);
 }
@@ -32,8 +31,6 @@ int main(int argc, char** argv) {
     }
     int len;
     char *arr = file2arr(fd_from, &len);
-    //int numBar = numOfBar(arr, &len);
-    printf("Num of words = %i\n", numWords(arr, len));
 
     return 0;
 }
@@ -92,6 +89,29 @@ int numWords(char* arr,int lenArr){
     }
 
     return numOfWords;
+}
+
+int getWordLen(char* arr, int position, int arrLen){
+    while (position < arrLen && isspace(arr[position])){
+        printf( "Hello there\n");
+        position++;
+    }
+
+    if (position == arrLen){
+        return 0;
+    }
+
+    if(arr[position] == '|'){
+        return 1;
+    }
+
+    int result = 0;
+    while (position < arrLen && !isspace(arr[position]) && arr[position] != '|'){
+        position++;
+        result++;
+    }
+
+    return result;
 }
 
 int numOfBar(char *arr, int *plen){
