@@ -4,49 +4,33 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <sys/wait.h>
 
-int get_file_size(int fd);
+int getFileSize(int fd);
 char* file2arr(int fd, int* arrLen);
 int numWords(char* arr,int lenArr);
 int getWordLen(char* arr, int position, int arrLen);
-int nextWord(char* arr, int position, int arrLen){
-    while (position < arrLen){
-        if (!isspace(arr[position])){
-            break;
-        }
-        position++;
-    }
-
-    return position;
-}
-
-char* getWord(char* arr, int position, int arrLen){
-    ;
-}
-char** arr2matrix(char* arr,int lenArr, int* pSize){
-    int nWords = numWords(arr, lenArr);
-    *pSize = nWords;
-    char **matrix = (char**) calloc(nWords, sizeof(char*));
-    int position = 0;
-    for(int i = 0; i < nWords; i++){
-        int lenWord = getWordLen(arr, position, lenArr);
-        matrix[i] = (char*) calloc(lenWord + 1, sizeof(char));
-        position = nextWord(arr, position, lenArr);
-        for (int j = 0; j < lenWord; ++j) {
-            matrix[i][j] = arr[position];
-            position ++;
-        }
-    }
-
-    return matrix;
-}
-
+int nextWord(char* arr, int position, int arrLen);
+char** arr2matrix(char* arr,int lenArr, int* pSize); // Также добавляет Null перед каждой |
 void printMatrix(char** matrix, int size);
+int numOfBarArr(char *arr, int len); //возвращает количество |
+int numOfBarMatrix(char** matrix, int size);
+int lastBarArr(char *arr, int len); //Находит последний | в массиве
+int lastBarMatrix(char ** matrix, int size);
 
-int numOfBar(char *arr, int *plen); //возвращает ближайший |
-int lastBar(char *arr, int len);
-void doBar(char *arr, int len){
-    if (numOfBar(arr, &len) == 0);
+void doBar(char** matrix, int size){
+    if (numOfBarMatrix(matrix, size) == 0){ // Значит, здесь находится какая-то программа, которую следует запустить
+        int forked = fork();
+        if(forked == 0){// потомок
+            execvp(matrix[0], matrix);
+        }
+        if(forked){ //родитель
+            wait(NULL);
+        }
+    }
+    else if(numOfBarMatrix(matrix, size) == 1){
+
+    }
 }
 
 int main(int argc, char** argv) {
@@ -57,14 +41,17 @@ int main(int argc, char** argv) {
     }
     int len;
     char *arr = file2arr(fd_from, &len);
+    close(fd_from);
     //printf("Next word on the %i position\n", nextWord(arr, 31, len));
     int sizeMatrix;
     char** matrix = arr2matrix(arr, len, &sizeMatrix);
     printMatrix(matrix, sizeMatrix);
+    //printf("Last |: %i\n", lastBarMatrix(matrix, sizeMatrix));
+    //doBar(matrix, sizeMatrix);
     return 0;
 }
 
-int get_file_size(int fd){
+int getFileSize(int fd){
     if(fd == -1)
         return -1;
 
@@ -75,7 +62,7 @@ int get_file_size(int fd){
 }
 
 char* file2arr(int fd, int* arrLen){
-    int fileLen = get_file_size(fd);
+    int fileLen = getFileSize(fd);
     char* arr = calloc(fileLen, sizeof(char));
     if(arr == NULL){
         printf("File is too big\n");
@@ -143,15 +130,49 @@ int getWordLen(char* arr, int position, int arrLen){
     return result;
 }
 
+int nextWord(char* arr, int position, int arrLen){
+    while (position < arrLen){
+        if (!isspace(arr[position])){
+            break;
+        }
+        position++;
+    }
+
+    return position;
+}
+
+char** arr2matrix(char* arr,int lenArr, int* pSize){
+    int nWords = numWords(arr, lenArr) + numOfBarArr(arr, lenArr);
+    *pSize = nWords;
+    char **matrix = (char**) calloc(nWords, sizeof(char*));
+    int position = 0;
+    for(int i = 0; i < nWords; i++){
+        int lenWord = getWordLen(arr, position, lenArr);
+        matrix[i] = (char*) calloc(lenWord + 1, sizeof(char));
+        position = nextWord(arr, position, lenArr);
+        for (int j = 0; j < lenWord; ++j) {
+            matrix[i][j] = arr[position];
+            position ++;
+        }
+        if(matrix[i][0] == '|'){
+            i++;
+            matrix[i] = NULL;
+        }
+    }
+
+    return matrix;
+}
+
 void printMatrix(char** matrix, int size){
+    printf("Size of matrix: %i\n", size);
     for (int i = 0; i < size; ++i) {
-        printf("%s\n", matrix[i]);
+        printf("%i) %s\n", i, matrix[i]);
     }
 }
 
-int numOfBar(char *arr, int *plen){
+int numOfBarArr(char *arr, int len){
     int result = 0;
-    for (int i = 0; i < *plen; ++i) {
+    for (int i = 0; i < len; ++i) {
         if(arr[i] == '|'){
             result++;
         }
@@ -160,11 +181,32 @@ int numOfBar(char *arr, int *plen){
     return result;
 }
 
-int lastBar(char *arr, int len){
+int numOfBarMatrix(char** matrix, int size){
+    int result = 0;
+    for (int i = 0; i < size; ++i) {
+        if(matrix[i][0] == '|'){
+            result++;
+        }
+    }
+
+    return result;
+}
+
+int lastBarArr(char *arr, int len){
     int i = len - 1;
     while (arr[i] != '|'){
         i--;
     }
 
     return i;
+}
+
+int lastBarMatrix(char ** matrix, int size){
+    for (int i = size - 1; i >= 0; --i) {
+        if (matrix[i][0] == '|'){
+            return i;
+        }
+    }
+
+    return -1;
 }
