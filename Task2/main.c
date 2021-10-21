@@ -28,8 +28,32 @@ void doBar(char** matrix, int size){
             wait(NULL);
         }
     }
-    else if(numOfBarMatrix(matrix, size) == 1){
+    if(numOfBarMatrix(matrix, size) == 1){ //
+        int fd[2];
+        pipe(fd);
+        int forked = fork();
+        if (forked == 0){ // Выполняет процесс слева от я|
+            //printf("Hello there\n");
+            dup2(fd[1], STDOUT_FILENO);
+            execvp(matrix[0], matrix);
+        }
+        else if(forked > 0){ // Родитель
+            wait(NULL);
+            // Выполняем справа от |
+            int forked1 = fork();
+            int fd1[2];
+            pipe(fd1);
+            if (forked1 == 0) {
+                dup2(fd[0], STDIN_FILENO);
+                int barPosition = lastBarMatrix(matrix, size);
+                execvp(matrix[barPosition + 1], matrix + barPosition + 1);
+            }
+            if(forked1 > 0){
+                ;
 
+            }
+            //printf("Hi");
+        }
     }
 }
 
@@ -45,9 +69,10 @@ int main(int argc, char** argv) {
     //printf("Next word on the %i position\n", nextWord(arr, 31, len));
     int sizeMatrix;
     char** matrix = arr2matrix(arr, len, &sizeMatrix);
-    printMatrix(matrix, sizeMatrix);
+    //printMatrix(matrix, sizeMatrix);
     //printf("Last |: %i\n", lastBarMatrix(matrix, sizeMatrix));
-    //doBar(matrix, sizeMatrix);
+    //printf("Hello\n");
+    doBar(matrix, sizeMatrix);
     return 0;
 }
 
@@ -143,8 +168,8 @@ int nextWord(char* arr, int position, int arrLen){
 
 char** arr2matrix(char* arr,int lenArr, int* pSize){
     int nWords = numWords(arr, lenArr) + numOfBarArr(arr, lenArr);
-    *pSize = nWords;
-    char **matrix = (char**) calloc(nWords, sizeof(char*));
+    *pSize = nWords + 1;
+    char **matrix = (char**) calloc(nWords + 1, sizeof(char*));
     int position = 0;
     for(int i = 0; i < nWords; i++){
         int lenWord = getWordLen(arr, position, lenArr);
@@ -157,9 +182,12 @@ char** arr2matrix(char* arr,int lenArr, int* pSize){
         if(matrix[i][0] == '|'){
             i++;
             matrix[i] = NULL;
+            char* buf = matrix[i];
+            matrix[i] = matrix[i - 1];
+            matrix[i - 1] = buf;
         }
     }
-
+    matrix[nWords] = NULL;
     return matrix;
 }
 
@@ -184,11 +212,11 @@ int numOfBarArr(char *arr, int len){
 int numOfBarMatrix(char** matrix, int size){
     int result = 0;
     for (int i = 0; i < size; ++i) {
+        if(matrix[i] != NULL)
         if(matrix[i][0] == '|'){
             result++;
         }
     }
-
     return result;
 }
 
@@ -203,7 +231,7 @@ int lastBarArr(char *arr, int len){
 
 int lastBarMatrix(char ** matrix, int size){
     for (int i = size - 1; i >= 0; --i) {
-        if (matrix[i][0] == '|'){
+        if (matrix[i] != NULL && matrix[i][0] == '|'){
             return i;
         }
     }
