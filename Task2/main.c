@@ -39,20 +39,14 @@ void doBar(char** matrix, int size){
         }
         else if(forked > 0){ // Родитель
             wait(NULL);
-            // Выполняем справа от |
-            int forked1 = fork();
-            int fd1[2];
-            pipe(fd1);
-            if (forked1 == 0) {
-                dup2(fd[0], STDIN_FILENO);
-                int barPosition = lastBarMatrix(matrix, size);
-                execvp(matrix[barPosition + 1], matrix + barPosition + 1);
-            }
-            if(forked1 > 0){
-                ;
+            close(fd[1]);
+            dup2(fd[0], STDIN_FILENO);
+            //char str[10000] = {0};
+            //read(fd[0], str, 10000);
+            //printf("%s\n", str);
+            int barI = lastBarMatrix(matrix, size);
+            execvp(matrix[barI + 1], matrix + barI + 1);
 
-            }
-            //printf("Hi");
         }
     }
 }
