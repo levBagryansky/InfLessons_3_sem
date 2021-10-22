@@ -13,45 +13,123 @@ int getWordLen(char* arr, int position, int arrLen);
 int nextWord(char* arr, int position, int arrLen);
 char** arr2matrix(char* arr,int lenArr, int* pSize); // Также добавляет Null перед каждой |
 void printMatrix(char** matrix, int size);
+void freeMatrix(char ** matrix, int size);
 int numOfBarArr(char *arr, int len); //возвращает количество |
 int numOfBarMatrix(char** matrix, int size);
 int lastBarArr(char *arr, int len); //Находит последний | в массиве
 int lastBarMatrix(char ** matrix, int size);
 
 void doBar(char** matrix, int size){
-    if (numOfBarMatrix(matrix, size) == 0){ // Значит, здесь находится какая-то программа, которую следует запустить
+    int numBar = numOfBarMatrix(matrix, size);
+    if (numBar == 0){ // Значит, здесь находится какая-то программа, которую следует запустить
         int forked = fork();
         if(forked == 0){// потомок
             execvp(matrix[0], matrix);
+            printf("Command \"%s\" returned error.\n", matrix[0]);
+            perror("Error: ");
         }
         if(forked){ //родитель
-            wait(NULL);
+            int status = 1;
+            waitpid(forked, &status, 0);
         }
     }
-    if(numOfBarMatrix(matrix, size) == 1){ //
+    if(numBar== 1){ //
+        int fd[2];
+        pipe(fd);
+        pid_t forked = fork();
+        if (forked == 0){ // Выполняет процесс слева от |
+            //printf("Hello there\n");
+            close(fd[0]);
+            dup2(fd[1], STDOUT_FILENO);
+            execvp(matrix[0], matrix);
+            dup2(10, STDOUT_FILENO);
+            printf("Command \"%s\" returned error.\n", matrix[0]);
+            perror("Error2");
+            exit(1);
+        }
+        else if(forked > 0){ // Родитель выполняет справа от |
+            int status;
+            waitpid(forked, &status, 0);
+            if (status != 0) {
+                close(fd[1]);
+                close(fd[2]);
+                printf("Ex\n");
+                exit(status);
+            }
+            forked = fork();
+            if(forked == 0) { // следующий потомок
+                close(fd[1]);
+                dup2(fd[0], STDIN_FILENO);
+                int barI = lastBarMatrix(matrix, size);
+                execvp(matrix[barI + 1], matrix + barI + 1);
+                dup2(10, STDOUT_FILENO);
+                printf("Command \"%s\" returned error.\n", matrix[barI + 1]);
+                perror("Error1");
+                close(fd[0]);
+                close(fd[1]);
+                exit(1);
+            }
+            else{ // родитель
+                close(fd[0]);
+                close(fd[1]);
+                //waitpid(forked, NULL, WCONTINUED);
+                waitpid(forked, &status, 0);
+                if (status != 0) {
+                    close(fd[1]);
+                    close(fd[2]);
+                    exit(status);
+                }
+                exit(1);
+            }
+        }
+    }
+    if(numBar > 1){
         int fd[2];
         pipe(fd);
         int forked = fork();
-        if (forked == 0){ // Выполняет процесс слева от я|
-            //printf("Hello there\n");
+        if (forked == 0){ //потомок выполняет слева от последнего |
+            close(fd[0]);
             dup2(fd[1], STDOUT_FILENO);
-            execvp(matrix[0], matrix);
-        }
-        else if(forked > 0){ // Родитель
-            wait(NULL);
+            doBar(matrix, lastBarMatrix(matrix, size));
+            close(fd[0]);
             close(fd[1]);
-            dup2(fd[0], STDIN_FILENO);
-            //char str[10000] = {0};
-            //read(fd[0], str, 10000);
-            //printf("%s\n", str);
-            int barI = lastBarMatrix(matrix, size);
-            execvp(matrix[barI + 1], matrix + barI + 1);
+            exit(0);
+        } else{ // родитель выполняет справа от последнего |
+            close(fd[1]);
+            close(fd[2]);
+            int status;
+            waitpid(forked, &status, WCONTINUED);
+            if(status != 0) {
+                printf("Exit\n");
+                exit(status);
+            }
 
+            forked = fork();
+            if(forked == 0) { // следующий потомок
+                close(fd[1]);
+                dup2(fd[0], STDIN_FILENO);
+                int barI = lastBarMatrix(matrix, size);
+                execvp(matrix[barI + 1], matrix + barI + 1);
+                dup2(10, STDOUT_FILENO);
+                printf("Command \"%s\" returned error.\n", matrix[barI + 1]);
+                perror("Error");
+                close(fd[0]);
+                close(fd[1]);
+                exit(1);
+            }
+            else{ // родитель
+                close(fd[0]);
+                close(fd[1]);
+
+                waitpid(forked, &status, WCONTINUED);
+                exit(1);
+            }
         }
     }
 }
 
 int main(int argc, char** argv) {
+    dup2(STDOUT_FILENO, 10);
     int fd_from = open(argv[1], O_RDONLY);
     if(fd_from == -1){
         printf("Can not open the file\n");
@@ -60,13 +138,12 @@ int main(int argc, char** argv) {
     int len;
     char *arr = file2arr(fd_from, &len);
     close(fd_from);
-    //printf("Next word on the %i position\n", nextWord(arr, 31, len));
     int sizeMatrix;
     char** matrix = arr2matrix(arr, len, &sizeMatrix);
-    //printMatrix(matrix, sizeMatrix);
-    //printf("Last |: %i\n", lastBarMatrix(matrix, sizeMatrix));
-    //printf("Hello\n");
     doBar(matrix, sizeMatrix);
+
+    freeMatrix(matrix, sizeMatrix);
+    free(arr);
     return 0;
 }
 
@@ -190,6 +267,13 @@ void printMatrix(char** matrix, int size){
     for (int i = 0; i < size; ++i) {
         printf("%i) %s\n", i, matrix[i]);
     }
+}
+
+void freeMatrix(char ** matrix, int size){
+    for (int i = 0; i < size; ++i) {
+        free(matrix[i]);
+    }
+    free(matrix);
 }
 
 int numOfBarArr(char *arr, int len){
