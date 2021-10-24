@@ -1,1 +1,0 @@
-lls -la / | grep bin | is grep bin | grep sbin
