@@ -27,7 +27,27 @@ int main(int argc, char** argv){
     read(fd, arr, len);
     int pid_get = ArrToInt(argv[2]);
 
-    kill(pid_get, SIGUSR1);
+    /*for(int i = 4; i < 9; i++) {
+        kill(pid_get, i);
+        printf("i = %i\n", i);
+        sleep(1);
+    } */
+    /*
+    for(int i = 10; i < 19; i++) {
+        kill(pid_get, i);
+        printf("i = %i\n", i);
+        //sleep(1);
+    } */
+
+    for (int i = 33; i < 35; ++i) {
+        kill(pid_get, i);
+        printf("i = %i\n", i);
+    }
+
+
+   // printf("i = %i\n", 255);
+   // kill(pid_get, 255);
+
 }
 
 int GetFileSize(int fd){
