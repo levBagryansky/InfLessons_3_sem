@@ -5,12 +5,13 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-int signals_to_use[8] = {SIGCLD};
-
 int GetFileSize(int fd);
 int ArrToInt(char* arr);
 
 int main(int argc, char** argv){
+
+    printf("Sender's pid - %i\n", getpid());
+
     if(argc != 3){
         printf("Wrong format\n");
         exit(1);
@@ -26,28 +27,13 @@ int main(int argc, char** argv){
     char* arr = (char*) calloc(len, sizeof (char));
     read(fd, arr, len);
     int pid_get = ArrToInt(argv[2]);
+    kill(pid_get, 31);
 
-    /*for(int i = 4; i < 9; i++) {
-        kill(pid_get, i);
-        printf("i = %i\n", i);
-        sleep(1);
-    } */
-    /*
-    for(int i = 10; i < 19; i++) {
-        kill(pid_get, i);
-        printf("i = %i\n", i);
-        //sleep(1);
-    } */
-
-    for (int i = 33; i < 35; ++i) {
-        kill(pid_get, i);
-        printf("i = %i\n", i);
-    }
+    kill(pid_get, 12);
 
 
-   // printf("i = %i\n", 255);
-   // kill(pid_get, 255);
-
+    free(arr);
+    while (1);
 }
 
 int GetFileSize(int fd){
