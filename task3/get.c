@@ -57,13 +57,35 @@ int main(int argc, char** argv){
     sigaction(SIGUSR1, &act1, 0);
     sigaction(SIGUSR2, &act2, 0);
     sigaction(2, &act3, 0);
-    //signal(255, OnSyg255);
     while (send_pid == 0){;}
-    kill(send_pid, 12);
+    sigset_t set_usr1_usr2;
+    sigemptyset(&set_usr1_usr2);
+    sigaddset(&set_usr1_usr2, SIGUSR1);
+    sigaddset(&set_usr1_usr2, SIGUSR2);
+    char buf;
+    kill(send_pid, 10);
+    while (1){
+        printf("counter = %i\n", counter);
+        sigwait(&set_usr1_usr2, &getted_sygnal);
+        if(getted_sygnal == 10){
+            buf = 0;
+        } else if(getted_sygnal == 12){
+            buf = 1;
+        }
+        buf <<= counter;
+        c |= buf;
+        counter++;
+        if(counter == 8){
+            printf("writing %c\n", c);
+            write(fd_to, &c, 1);
+            counter = 0;
+        }
+        kill(send_pid, 10);
+    }
 }
 
 void OnSyg2(int sig_num){
-    printf("x = %i\n", sig_num);
+    //printf("x = %i\n", sig_num);
     getted_sygnal = 2;
     PrintSig();
     close(fd_to);
@@ -109,5 +131,4 @@ void OnSyg31(int sig_num){
 void sa_sigaction31(int sig_num, siginfo_t* inf, void * p){
     send_pid = inf -> si_pid;
     printf("OMG I get signal from %i\n", inf->si_pid);
-    kill(inf -> si_pid, 10);
 }
