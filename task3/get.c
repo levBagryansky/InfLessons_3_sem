@@ -56,7 +56,9 @@ int main(int argc, char** argv){
     sigaction(SIGUSR1, &act1, 0);
     sigaction(SIGUSR2, &act2, 0);
     sigaction(2, &act3, 0);
+
     while (send_pid == 0){;}
+
     sigset_t set_usr1_usr2;
     sigemptyset(&set_usr1_usr2);
     sigaddset(&set_usr1_usr2, SIGUSR1);
@@ -65,7 +67,7 @@ int main(int argc, char** argv){
     kill(send_pid, 15);
     while (1){
         sigwait(&set_usr1_usr2, &getted_sygnal);
-        printf("counter = %i\n", counter);
+        //printf("wait = %i\n", counter);
         if(getted_sygnal == 10){
             buf = 0;
         } else if(getted_sygnal == 12){
@@ -75,11 +77,12 @@ int main(int argc, char** argv){
         c |= buf;
         counter++;
         if(counter == 8){
-            printf("writing %c\n", c);
+            //printf("writing %c\n", c);
             write(fd_to, &c, 1);
             counter = 0;
             c = 0;
         }
+        usleep(1000);
         kill(send_pid, 15);
     }
 }

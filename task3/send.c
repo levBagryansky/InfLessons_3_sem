@@ -34,26 +34,42 @@ int main(int argc, char** argv){
     }
 
     int len = GetFileSize(fd);
-    char* arr = (char*) calloc(len, sizeof (char));
+    char* arr = (char*) calloc(len + 1, sizeof (char));
     read(fd, arr, len);
     int pid_get = ArrToInt(argv[2]);
     sigset_t set_usr15;
     sigemptyset(&set_usr15);
     sigaddset(&set_usr15, 15);
-    char c = 'A';
+    char c = arr[0];
     char buf;
     int sig = 0;
     kill(pid_get, 31);
 
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 1; i < len + 1; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            sigwait(&set_usr15, &sig);
+            buf = (c >> j) & 1U;
+            usleep(1000);
+            if(buf == 0){
+                kill(pid_get, 10);
+            } else if(buf == 1){
+                kill(pid_get, 12);
+            }
+            //printf("i = %i, j = %i\n", i, j);
+        }
+        c = arr[i];
+    }
+
+    /*
+    for (int j = 0; j < 8; ++j) {
         sigwait(&set_usr15, &sig);
-        buf = (c >> i) & 1U;
+        buf = (c >> j) & 1U;
         if(buf == 0){
             kill(pid_get, 10);
         } else if(buf == 1){
             kill(pid_get, 12);
         }
-        printf("i = %i\n", i);
+        printf("j = %j\n", j);
     }
     c = 'B';
     //sigwait(&set_usr15, &sig);
@@ -89,7 +105,7 @@ int main(int argc, char** argv){
             kill(pid_get, 12);
         }
         printf("i = %i\n", i);
-    }
+    } */
     sigwait(&set_usr15, &sig);
 
     kill(pid_get, 2);
