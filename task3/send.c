@@ -21,6 +21,7 @@ int main(int argc, char** argv){
     }
     act.sa_mask = set;
     sigaction(SIGUSR1, &act, 0);
+    sigaction(15, &act, 0);
     if(argc != 3){
         printf("Wrong format\n");
         exit(1);
@@ -36,24 +37,25 @@ int main(int argc, char** argv){
     char* arr = (char*) calloc(len, sizeof (char));
     read(fd, arr, len);
     int pid_get = ArrToInt(argv[2]);
-    sigset_t set_usr1;
-    sigemptyset(&set_usr1);
-    sigaddset(&set_usr1, SIGUSR1);
+    sigset_t set_usr15;
+    sigemptyset(&set_usr15);
+    sigaddset(&set_usr15, 15);
     char c = 'A';
     char buf;
     int sig = 0;
     kill(pid_get, 31);
 
     for (int i = 0; i < 8; ++i) {
-        sigwait(&set_usr1, &sig);
+        sigwait(&set_usr15, &sig);
         buf = (c >> i) & 1U;
         if(buf == 0){
             kill(pid_get, 10);
         } else if(buf == 1){
             kill(pid_get, 12);
         }
+        printf("i = %i\n", i);
     }
-    sigwait(&set_usr1, &sig);
+    sigwait(&set_usr15, &sig);
     kill(pid_get, 2);
 
 

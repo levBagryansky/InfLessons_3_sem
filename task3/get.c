@@ -43,10 +43,9 @@ int main(int argc, char** argv){
 
     //struct sa_
     act31.sa_mask = set;
-    act31.sa_sigaction = sa_sigaction31;
     act31.sa_flags = SA_SIGINFO;
+    act31.sa_sigaction = sa_sigaction31;
     sigaction(31, &act31, 0);
-
 
     act3.sa_mask = set;
     act3.sa_handler = OnSyg2;
@@ -63,10 +62,10 @@ int main(int argc, char** argv){
     sigaddset(&set_usr1_usr2, SIGUSR1);
     sigaddset(&set_usr1_usr2, SIGUSR2);
     char buf;
-    kill(send_pid, 10);
+    kill(send_pid, 15);
     while (1){
-        printf("counter = %i\n", counter);
         sigwait(&set_usr1_usr2, &getted_sygnal);
+        printf("counter = %i\n", counter);
         if(getted_sygnal == 10){
             buf = 0;
         } else if(getted_sygnal == 12){
@@ -80,7 +79,7 @@ int main(int argc, char** argv){
             write(fd_to, &c, 1);
             counter = 0;
         }
-        kill(send_pid, 10);
+        kill(send_pid, 15);
     }
 }
 
