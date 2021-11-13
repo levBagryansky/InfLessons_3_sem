@@ -78,6 +78,7 @@ int main(int argc, char** argv){
             printf("writing %c\n", c);
             write(fd_to, &c, 1);
             counter = 0;
+            c = 0;
         }
         kill(send_pid, 15);
     }
@@ -121,10 +122,6 @@ void OnSygSIGUSR2(int sig_num){
     }
     printf("counter in 2 = %i\n", counter);
     */
-}
-
-void OnSyg31(int sig_num){
-    ;
 }
 
 void sa_sigaction31(int sig_num, siginfo_t* inf, void * p){

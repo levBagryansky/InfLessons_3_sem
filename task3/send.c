@@ -55,9 +55,44 @@ int main(int argc, char** argv){
         }
         printf("i = %i\n", i);
     }
+    c = 'B';
+    //sigwait(&set_usr15, &sig);
+    for (int i = 0; i < 8; ++i) {
+        sigwait(&set_usr15, &sig);
+        buf = (c >> i) & 1U;
+        if(buf == 0){
+            kill(pid_get, 10);
+        } else if(buf == 1){
+            kill(pid_get, 12);
+        }
+        printf("i = %i\n", i);
+    }
+    //sigwait(&set_usr15, &sig);
+    c = 'C';
+    for (int i = 0; i < 8; ++i) {
+        sigwait(&set_usr15, &sig);
+        buf = (c >> i) & 1U;
+        if(buf == 0){
+            kill(pid_get, 10);
+        } else if(buf == 1){
+            kill(pid_get, 12);
+        }
+        printf("i = %i\n", i);
+    }
+    c = 'D';
+    for (int i = 0; i < 8; ++i) {
+        sigwait(&set_usr15, &sig);
+        buf = (c >> i) & 1U;
+        if(buf == 0){
+            kill(pid_get, 10);
+        } else if(buf == 1){
+            kill(pid_get, 12);
+        }
+        printf("i = %i\n", i);
+    }
     sigwait(&set_usr15, &sig);
-    kill(pid_get, 2);
 
+    kill(pid_get, 2);
 
     free(arr);
 }
