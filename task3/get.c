@@ -35,6 +35,8 @@ int main(int argc, char** argv){
     struct sigaction act3;
     struct sigaction act31; // сигнал 31 посылается в самом начале, чтобы получить pid передатчика
     memset(&act31, 0, sizeof (act31));
+    memset(&act1, 0, sizeof (act31));
+    memset(&act2, 0, sizeof (act31));
     sigset_t set;
     sigemptyset(&set);
     for (int i = 1; i < 32; ++i) {
@@ -51,8 +53,10 @@ int main(int argc, char** argv){
     act3.sa_handler = OnSyg2;
     act1.sa_mask = set;
     act1.sa_handler = OnSygSIGUSR1;
+    act1.sa_flags = SA_RESTART;
     act2.sa_mask = set;
     act2.sa_handler = OnSygSIGUSR2;
+    act2.sa_flags = SA_RESTART;
     sigaction(SIGUSR1, &act1, 0);
     sigaction(SIGUSR2, &act2, 0);
     sigaction(2, &act3, 0);
@@ -63,10 +67,12 @@ int main(int argc, char** argv){
     sigemptyset(&set_usr1_usr2);
     sigaddset(&set_usr1_usr2, SIGUSR1);
     sigaddset(&set_usr1_usr2, SIGUSR2);
+    getted_sygnal = 0;
     char buf;
     kill(send_pid, 15);
     while (1){
-        sigwait(&set_usr1_usr2, &getted_sygnal);
+        while (getted_sygnal == 0){;};
+        //sigwait(&set_usr1_usr2, &getted_sygnal);
         //printf("wait = %i\n", counter);
         if(getted_sygnal == 10){
             buf = 0;
@@ -82,7 +88,8 @@ int main(int argc, char** argv){
             counter = 0;
             c = 0;
         }
-        usleep(1000);
+        getted_sygnal = 0;
+        //usleep(100);
         kill(send_pid, 15);
     }
 }
@@ -96,35 +103,13 @@ void OnSyg2(int sig_num){
 }
 
 void OnSygSIGUSR1(int sig_num){
-    /*
-    if (counter % 8 == 0){
-        c = 0;
-    }
-    c = 2 * c + 0;
-    counter++;
-    if(counter % 8 == 0){
-        write(fd_to, &c, 1);
-    }
-     */
-    printf("SIGUSR1\n");
-    //getted_sygnal = SIGUSR1; PrintSig();
+    //printf("SIGUSR1\n");
+    getted_sygnal = 10;
 }
 
 void OnSygSIGUSR2(int sig_num){
-    printf("SIGUSR2\n");
-    /*
-    if (counter % 8 == 0){
-        c = 0;
-    }
-
-    c <<= 1;
-    c |= 1;
-    counter++;
-    if(counter % 8 == 0){
-        write(fd_to, &c, 1);
-    }
-    printf("counter in 2 = %i\n", counter);
-    */
+    //printf("SIGUSR2\n");
+    getted_sygnal = 12;
 }
 
 void sa_sigaction31(int sig_num, siginfo_t* inf, void * p){
