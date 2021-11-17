@@ -47,24 +47,81 @@ int main(int argc, char** argv){
     sigaddset(&set_usr15, 15);
     char c = arr[0];
     char buf;
-    int sig = 0;
+    int new_sim_num = 0;
+    int old_sim_num = 0;
+    var_for_15 = 0;
+
     kill(pid_get, 31);
-    sigwait(&set_usr15, &sig);
+    while (var_for_15 == 0){;}
+    var_for_15 = 0;
 
     for (int i = 1; i < len + 1; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            buf = (c >> j) & 1U;
-            //usleep(1000);
-            if(buf == 0){
-                kill(pid_get, 10);
-            } else if(buf == 1){
-                kill(pid_get, 12);
+        for (int j = 0; j < 2; ++j) {
+            buf = (c >> (4*j)) & 15U; // & 00001111
+
+            switch (buf) {
+                case 0:
+                    kill(pid_get, 10);
+                    break;
+                case 1:
+                    kill(pid_get, 12);
+                    break;
+                case 2:
+                    kill(pid_get, 13);
+                    break;
+                case 3:
+                    kill(pid_get, 14);
+                    break;
+                case 4:
+                    kill(pid_get, 15);
+                    break;
+                case 5:
+                    kill(pid_get, 16);
+                    break;
+                case 6:
+                    kill(pid_get, 17);
+                    break;
+                case 7:
+                    kill(pid_get, 18);
+                    break;
+                case 8:
+                    kill(pid_get, 20);
+                    break;
+                case 9:
+                    kill(pid_get, 21);
+                    break;
+                case 10:
+                    kill(pid_get, 22);
+                    break;
+                case 11:
+                    kill(pid_get, 23);
+                    break;
+                case 12:
+                    kill(pid_get, 24);
+                    break;
+                case 13:
+                    kill(pid_get, 25);
+                    break;
+                case 14:
+                    kill(pid_get, 26);
+                    break;
+                case 15:
+                    kill(pid_get, 27);
+                    break;
             }
             while (var_for_15 == 0){;}
             var_for_15 = 0;
-            //sigwait(&set_usr15, &sig);
             //printf("i = %i, j = %i\n", i, j);
         }
+        /*
+        if(i % 16384 == 0) {
+            old_sim_num = new_sim_num;
+            new_sim_num = i * 100 / len;
+            if (new_sim_num - old_sim_num) {
+                printf("Processing... , wrote %i%%\n", new_sim_num);
+            }
+        }
+        */
         c = arr[i];
     }
 
