@@ -75,7 +75,7 @@ int main(int argc, char** argv){
     act31.sa_mask = set;
     act31.sa_flags = SA_SIGINFO;
     act31.sa_sigaction = sa_sigaction31;
-    sigaction(31, &act31, 0);
+    sigaction(SIGSYS, &act31, 0);
 
     act3.sa_mask = set;
     act3.sa_handler = OnSyg2;
@@ -127,23 +127,23 @@ int main(int argc, char** argv){
     act25.sa_flags = SA_RESTART;
     act26.sa_flags = SA_RESTART;
     act27.sa_flags = SA_RESTART;
-    sigaction(10, &act10, 0);
-    sigaction(12, &act12, 0);
-    sigaction(13, &act13, 0);
-    sigaction(14, &act14, 0);
-    sigaction(15, &act15, 0);
-    sigaction(16, &act16, 0);
-    sigaction(17, &act17, 0);
-    sigaction(18, &act18, 0);
-    sigaction(20, &act20, 0);
-    sigaction(21, &act21, 0);
-    sigaction(22, &act22, 0);
-    sigaction(23, &act23, 0);
-    sigaction(24, &act24, 0);
-    sigaction(25, &act25, 0);
-    sigaction(26, &act26, 0);
-    sigaction(27, &act27, 0);
-    sigaction(2, &act3, 0);
+    sigaction(SIGUSR1, &act10, 0);
+    sigaction(SIGUSR2, &act12, 0);
+    sigaction(SIGPIPE, &act13, 0);
+    sigaction(SIGALRM, &act14, 0);
+    sigaction(SIGTERM, &act15, 0);
+    sigaction(SIGSTKFLT, &act16, 0);
+    sigaction(SIGCHLD, &act17, 0);
+    sigaction(SIGCONT, &act18, 0);
+    sigaction(SIGTSTP, &act20, 0);
+    sigaction(SIGTTIN, &act21, 0);
+    sigaction(SIGTTOU, &act22, 0);
+    sigaction(SIGURG, &act23, 0);
+    sigaction(SIGXCPU, &act24, 0);
+    sigaction(SIGXFSZ, &act25, 0);
+    sigaction(SIGVTALRM, &act26, 0);
+    sigaction(SIGPROF, &act27, 0);
+    sigaction(SIGINT, &act3, 0);
 
     while (send_pid == 0){;}
 
@@ -153,7 +153,7 @@ int main(int argc, char** argv){
     sigaddset(&set_usr1_usr2, SIGUSR2);
     getted_sygnal = -1;
     char buf;
-    kill(send_pid, 15);
+    kill(send_pid, SIGTERM);
     while (1){
         while (getted_sygnal == -1){;};
         //sigwait(&set_usr1_usr2, &getted_sygnal);

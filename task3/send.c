@@ -26,7 +26,7 @@ int main(int argc, char** argv){
         sigaddset(&set, i);
     }
     act.sa_mask = set;
-    sigaction(15, &act, 0);
+    sigaction(SIGTERM, &act, 0);
     if(argc != 3){
         printf("Wrong format\n");
         exit(1);
@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     int old_sim_num = 0;
     var_for_15 = 0;
 
-    kill(pid_get, 31);
+    kill(pid_get, SIGSYS);
     while (var_for_15 == 0){;}
     var_for_15 = 0;
 
@@ -61,52 +61,52 @@ int main(int argc, char** argv){
 
             switch (buf) {
                 case 0:
-                    kill(pid_get, 10);
+                    kill(pid_get, SIGUSR1);
                     break;
                 case 1:
-                    kill(pid_get, 12);
+                    kill(pid_get, SIGUSR2);
                     break;
                 case 2:
-                    kill(pid_get, 13);
+                    kill(pid_get, SIGPIPE);
                     break;
                 case 3:
-                    kill(pid_get, 14);
+                    kill(pid_get, SIGALRM);
                     break;
                 case 4:
-                    kill(pid_get, 15);
+                    kill(pid_get, SIGTERM);
                     break;
                 case 5:
-                    kill(pid_get, 16);
+                    kill(pid_get, SIGSTKFLT);
                     break;
                 case 6:
-                    kill(pid_get, 17);
+                    kill(pid_get, SIGCHLD);
                     break;
                 case 7:
-                    kill(pid_get, 18);
+                    kill(pid_get, SIGCONT);
                     break;
                 case 8:
-                    kill(pid_get, 20);
+                    kill(pid_get, SIGTSTP);
                     break;
                 case 9:
-                    kill(pid_get, 21);
+                    kill(pid_get, SIGTTIN);
                     break;
                 case 10:
-                    kill(pid_get, 22);
+                    kill(pid_get, SIGTTOU);
                     break;
                 case 11:
-                    kill(pid_get, 23);
+                    kill(pid_get, SIGURG);
                     break;
                 case 12:
-                    kill(pid_get, 24);
+                    kill(pid_get, SIGXCPU);
                     break;
                 case 13:
-                    kill(pid_get, 25);
+                    kill(pid_get, SIGXFSZ);
                     break;
                 case 14:
-                    kill(pid_get, 26);
+                    kill(pid_get, SIGVTALRM);
                     break;
                 case 15:
-                    kill(pid_get, 27);
+                    kill(pid_get, SIGPROF);
                     break;
             }
             while (var_for_15 == 0){;}
