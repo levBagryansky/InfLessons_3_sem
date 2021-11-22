@@ -8,6 +8,7 @@ typedef struct {
     int count;
     int to_destruct; // != 0 if to destruct
     int shm_stack_t_id;
+    int sem_id;
     int n_process;
     pthread_mutex_t mutex;
     void **data;
@@ -16,6 +17,10 @@ typedef struct {
 /* Attach (create if needed) shared memory stack to the process.
 Returns stack_t* in case of success. Returns NULL on failure. */
 stack_t* attach_stack(key_t key, int size);
+
+void Lock(stack_t* stack);
+
+void Unlock(stack_t* stack);
 
 void PrintStack(stack_t* stack);
 
