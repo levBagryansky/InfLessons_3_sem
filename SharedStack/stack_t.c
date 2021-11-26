@@ -157,26 +157,26 @@ int detach_stack(my_stack_t* stack){
 	if(stack == NULL)
 		return -1;
 	//printf("In Lock Detach, sem_id = %i\n", stack->sem_id);
-	stack -> n_process --;
 	semop(stack -> sem_id, &sem_lock, 1);
 	//printf("stack->n_process = %d, stack -> to_destruct = %d\n", stack->n_process, stack -> to_destruct);
-	//struct shmid_ds shm_info;
-	//shm_info.shm_nattch = 0;
-	//shmctl(stack->shm_my_stack_t_id, IPC_STAT, &shm_info);
+	stack -> n_process --;
+	struct shmid_ds shm_info = {0};
+	shm_info.shm_nattch = 0;
+	shmctl(stack->shm_my_stack_t_id, IPC_STAT, &shm_info);
 	//printf("counting n = %d, info = %ld\n", stack->n_process, shm_info.shm_nattch);
 	//stack->n_process = (shm_info.shm_nattch - 1);
-	if(stack->n_process == 0 && stack -> to_destruct) {
+	if(shm_info.shm_nattch == 1 && stack -> to_destruct) {
 		//usleep(1e5);
 		int buf_sem_id = stack->sem_id;
 		shmctl(stack->shm_my_stack_t_id, IPC_RMID, NULL);
 		shmdt(stack);
 		semctl(buf_sem_id, 0, IPC_RMID, NULL);
-		//printf("Unlock and deleting stack\n");
+		printf("Unlock and deleting stack\n");
 		semop(buf_sem_id, &sem_unlock, 1);
 	} else{
 		int buf_sem_id = stack->sem_id;
 		shmdt(stack);
-		//printf("Unlock and detaching stack\n");
+		printf("Unlock and detaching stack\n");
 		semop(buf_sem_id, &sem_unlock, 1);
 	}
 	return 0;
