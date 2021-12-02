@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 int buf_i;
 
@@ -15,31 +16,34 @@ int CopyFile(char *path_out, char *path_to);
 int ArrEqual(char *arr1, char *arr2);
 int RemoveDirectory(char *path);
 int RemoveExtra(char *path_from, char *path_to); //deleted extra files from path_to
+int DifferentFiles(char * path_1, char * path_2);
 
 int CopyDir(char *path_out, char *path_to){
 	printf("CopyDir, path_out = %s\n", path_out);
 	mkdir(path_to, 0777);
 	RemoveExtra(path_out, path_to);
 	DIR* pdir = opendir(path_out);
-	printf("pdir = %p\n", pdir);
+	//printf("pdir = %p\n", pdir);
 	struct dirent* dt;
 	while ((dt = readdir(pdir)) != NULL){
 		char *new_path_to = Concatinate(path_to, dt->d_name);
 		if(new_path_to == NULL){
 			return -1;
 		}
+		char *new_path_from = Concatinate(path_out, dt->d_name);
 		if(dt->d_type == 4) { // dt директория
 			if(dt->d_name[0] != '.'){
-				char *new_path_from = Concatinate(path_out, dt->d_name);
 				CopyDir(new_path_from, new_path_to);
-				free(new_path_from);
 			}
 		} else{ // беспонтовый файл
-			char *new_path_from = Concatinate(path_out, dt->d_name);
-			CopyFile(new_path_from, new_path_to);
-			free(new_path_from);
+			if (DifferentFiles(new_path_from, new_path_to)) {
+				printf("Files are different\n");
+				CopyFile(new_path_from, new_path_to);
+			} else{
+				printf("Files are equal\n");
+			}
 		}
-
+		free(new_path_from);
 		free(new_path_to);
 	}
 	closedir(pdir);
@@ -51,16 +55,9 @@ int main(int argc, char ** argv) {
 		printf("Wrong number of argument.\n");
 		exit(EXIT_FAILURE);
 	}
-	char s1[10] = "Hello";
-	char s2[10] = "World";
-
-	char * summ = Concatinate(s1, s2);
-	printf("summ = %s\n", summ);
-	free(summ);
 
 	CopyDir(argv[1], argv[2]);
 
-	//RemoveDirectory(argv[1]);
 	return 0;
 }
 
@@ -105,7 +102,7 @@ int GetFileSize(int fd){
 }
 
 int CopyFile(char *path_out, char *path_to){
-	printf("CopyFile\n");
+	printf("CopyFile%s\n", path_out);
 	int fd_in = open(path_out, O_RDONLY);
 	int fd_out = open(path_to, O_RDWR | O_CREAT | O_TRUNC, 0666);
 	if(fd_out == -1){
@@ -123,6 +120,8 @@ int CopyFile(char *path_out, char *path_to){
 		return -1;
 	}
 	memcpy(dst, src, size);
+	close(fd_out);
+	close(fd_in);
 	return 0;
 }
 
@@ -218,5 +217,36 @@ int RemoveExtra(char *path_from, char *path_to){
 	rewinddir(pdir_to);
 	closedir(pdir_to);
 	closedir(pdir_from);
+	return 0;
+}
+
+int DifferentFiles(char * path_1, char * path_2) {
+	int file1 = open(path_1, O_RDONLY);
+	int file2 = open(path_2, O_RDONLY);
+	if (file2 == -1) {
+		printf("comparator returning cause does not exist ERRNO = %i\n", errno);
+		close(file1);
+		close(file2);
+		return 1;
+	}
+
+	struct stat info1;
+	fstat(file1, &info1);
+
+	struct stat info2;
+	fstat(file2, &info2);
+
+	struct timespec begin, end;
+
+	begin = info1.st_mtim;
+	end = info2.st_mtim;
+
+	int time = (end.tv_sec - begin.tv_sec);
+	//printf("comparator returning 0\n");
+	close(file1);
+	close(file2);
+	if (time > 0) {
+		return 0;
+	}
 	return 0;
 }
