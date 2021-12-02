@@ -236,17 +236,17 @@ int DifferentFiles(char * path_1, char * path_2) {
 	struct stat info2;
 	fstat(file2, &info2);
 
-	struct timespec begin, end;
+	struct timespec time_from, time_to;
 
-	begin = info1.st_mtim;
-	end = info2.st_mtim;
+	time_from = info1.st_mtim;
+	time_to = info2.st_mtim;
 
-	int time = (end.tv_sec - begin.tv_sec);
+	int time = (time_from.tv_sec - time_to.tv_sec);
 	//printf("comparator returning 0\n");
 	close(file1);
 	close(file2);
 	if (time > 0) {
-		return 0;
+		return 1;
 	}
 	return 0;
 }
